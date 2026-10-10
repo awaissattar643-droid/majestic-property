@@ -11,7 +11,7 @@ export default function PropertyCard({ property }: { property: Property }) {
   return (
     <div className="card">
       {img && (
-        <Link href={`/property/${property.id}`}>
+        <Link href={`/property?id=${property.id}`}>
           <img className="card-img" src={img} alt={property.title} loading="lazy" />
         </Link>
       )}
@@ -23,7 +23,7 @@ export default function PropertyCard({ property }: { property: Property }) {
           {property.sample && <span className="badge sample">SAMPLE</span>}
         </div>
         <h3>
-          <Link href={`/property/${property.id}`}>{property.title}</Link>
+          <Link href={`/property?id=${property.id}`}>{property.title}</Link>
         </h3>
         <div className="loc">📍 {property.location}</div>
         <div className="price">{property.price_text}</div>

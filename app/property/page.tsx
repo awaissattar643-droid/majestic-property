@@ -1,23 +1,25 @@
 "use client";
 
-export const runtime = "edge";
-
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { getSupabase, isBackendConfigured, ownerWhatsApp } from "../../../lib/supabase";
-import { SAMPLE_PROPERTIES } from "../../../lib/sample-data";
-import { formatSpecs, whatsappInquiryUrl, type Property } from "../../../lib/types";
-import BackendNotice from "../../../components/BackendNotice";
+import { useSearchParams } from "next/navigation";
+import { getSupabase, isBackendConfigured, ownerWhatsApp } from "../../lib/supabase";
+import { SAMPLE_PROPERTIES } from "../../lib/sample-data";
+import { formatSpecs, whatsappInquiryUrl, type Property } from "../../lib/types";
+import BackendNotice from "../../components/BackendNotice";
 
-export default function PropertyDetailPage() {
-  const params = useParams();
-  const id = params.id as string;
+function PropertyDetail() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id") ?? "";
   const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
+      if (!id) {
+        setLoading(false);
+        return;
+      }
       const sb = getSupabase();
       if (!sb) {
         setProperty(SAMPLE_PROPERTIES.find((p) => p.id === id) ?? null);
@@ -93,5 +95,13 @@ export default function PropertyDetailPage() {
         Majestic Property Solutions — Clifton, Karachi
       </footer>
     </>
+  );
+}
+
+export default function PropertyPage() {
+  return (
+    <Suspense fallback={<div className="empty">Loading…</div>}>
+      <PropertyDetail />
+    </Suspense>
   );
 }

@@ -7,7 +7,6 @@
   },
   "description": "Property listings website + admin management system for Majestic Property Solutions, Karachi",
   "devDependencies": {
-    "@cloudflare/next-on-pages": "1.12.1",
     "@types/node": "^20.14.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
@@ -18,7 +17,6 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "pages:build": "npx @cloudflare/next-on-pages",
     "start": "next start",
     "typecheck": "tsc --noEmit"
   },
