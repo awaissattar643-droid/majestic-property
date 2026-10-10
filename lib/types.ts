@@ -17,6 +17,11 @@ export type Property = {
   created_at?: string;
   /** True for the built-in demo listings shown when Supabase is not connected. */
   sample?: boolean;
+  /**
+   * Optional "featured" flag. The Supabase `properties` table may not have
+   * this column yet — the UI treats a missing value as false and never crashes.
+   */
+  featured?: boolean;
 };
 
 export function formatSpecs(p: Property): string {

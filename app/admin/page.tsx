@@ -17,6 +17,7 @@ type FormState = {
   area_sqft: string;
   description: string;
   imageUrl: string;
+  featured: boolean;
 };
 
 const EMPTY_FORM: FormState = {
@@ -30,7 +31,14 @@ const EMPTY_FORM: FormState = {
   area_sqft: "",
   description: "",
   imageUrl: "",
+  featured: false,
 };
+
+/** True when a Supabase error means the `featured` column doesn't exist yet. */
+function isMissingFeaturedColumn(error: { message?: string; code?: string }): boolean {
+  const msg = (error.message ?? "").toLowerCase();
+  return error.code === "PGRST204" || (msg.includes("featured") && msg.includes("column"));
+}
 
 export default function AdminPage() {
   const [session, setSession] = useState<boolean>(false);
@@ -112,7 +120,7 @@ export default function AdminPage() {
       return;
     }
     const num = (v: string) => (v.trim() === "" ? null : Number(v));
-    const payload = {
+    const base = {
       title: form.title.trim(),
       location: form.location.trim(),
       price_text: form.price_text.trim(),
@@ -124,16 +132,33 @@ export default function AdminPage() {
       description: form.description.trim(),
       images: form.imageUrl.trim() ? [form.imageUrl.trim()] : [],
     };
+    // Include `featured` when the column exists; fall back gracefully if not.
+    const withFeatured = { ...base, featured: form.featured };
 
-    if (editingId) {
-      const { error } = await sb.from("properties").update(payload).eq("id", editingId);
-      if (error) { setMsg(`Save failed: ${error.message}`); return; }
-      setMsg("✅ Property updated.");
-    } else {
-      const { error } = await sb.from("properties").insert(payload);
-      if (error) { setMsg(`Save failed: ${error.message}`); return; }
-      setMsg("✅ Property added — it is now live on the website.");
+    async function run(payload: Record<string, unknown>) {
+      if (editingId) return sb!.from("properties").update(payload).eq("id", editingId);
+      return sb!.from("properties").insert(payload);
     }
+
+    let { error } = await run(withFeatured);
+    let featuredNote = "";
+    if (error && isMissingFeaturedColumn(error)) {
+      const retry = await run(base);
+      error = retry.error;
+      if (!error) {
+        featuredNote =
+          " Note: the “Featured” flag was not saved — add a `featured` (boolean) column to the properties table in Supabase to enable it.";
+      }
+    }
+    if (error) {
+      setMsg(`Save failed: ${error.message}`);
+      return;
+    }
+    setMsg(
+      editingId
+        ? `✅ Property updated.${featuredNote}`
+        : `✅ Property added — it is now live on the website.${featuredNote}`
+    );
     setForm(EMPTY_FORM);
     setEditingId(null);
     loadProperties();
@@ -152,6 +177,7 @@ export default function AdminPage() {
       area_sqft: p.area_sqft?.toString() ?? "",
       description: p.description ?? "",
       imageUrl: p.images[0] ?? "",
+      featured: p.featured ?? false,
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -171,8 +197,8 @@ export default function AdminPage() {
         <BackendNotice />
         <div className="admin-wrap">
           <div className="login-box">
-            <h2>🔧 Admin Panel</h2>
-            <p style={{ color: "#64748b", fontSize: 14, marginTop: 8 }}>
+            <h2>Admin Panel</h2>
+            <p style={{ color: "#5d6c80", fontSize: 14, marginTop: 8 }}>
               Connect Supabase first — then log in with your admin email and password.
             </p>
             <Link href="/" className="back-link">← Back to site</Link>
@@ -187,7 +213,9 @@ export default function AdminPage() {
       <div className="admin-wrap">
         <div className="login-box">
           <h2>🔐 Admin Login</h2>
-          <p style={{ color: "#64748b", fontSize: 14, marginTop: 6 }}>Manage your property listings</p>
+          <p style={{ color: "#5d6c80", fontSize: 14, marginTop: 6 }}>
+            Majestic Property Solutions — manage your listings
+          </p>
           <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
           <input
             type="password"
@@ -196,7 +224,7 @@ export default function AdminPage() {
             onChange={(e) => setPassword(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && doLogin()}
           />
-          <button className="btn" onClick={doLogin}>Login</button>
+          <button className="btn" style={{ width: "100%", marginTop: 8 }} onClick={doLogin}>Login</button>
           {loginError && <div className="error">{loginError}</div>}
           <div className="hint">
             Use the admin user created in Supabase Dashboard → Authentication → Users.
@@ -209,7 +237,7 @@ export default function AdminPage() {
 
   return (
     <div className="admin-wrap">
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
+      <div className="admin-top">
         <h2>{editingId ? "✏️ Edit Property" : "➕ Add Property"}</h2>
         <div>
           <Link href="/" className="btn btn-gray btn-sm" style={{ textDecoration: "none", marginRight: 8 }}>
@@ -248,8 +276,19 @@ export default function AdminPage() {
           <div className="field"><label>Bedrooms</label><input type="number" value={form.beds} onChange={(e) => set("beds", e.target.value)} /></div>
           <div className="field"><label>Bathrooms</label><input type="number" value={form.baths} onChange={(e) => set("baths", e.target.value)} /></div>
           <div className="field"><label>Area (sqft)</label><input type="number" value={form.area_sqft} onChange={(e) => set("area_sqft", e.target.value)} /></div>
-          <div className="field"><label>&nbsp;</label><div style={{ color: "#94a3b8", fontSize: 13 }}>Live preview below after save</div></div>
-          <div className="field full"><label>Description</label><textarea value={form.description} onChange={(e) => set("description", e.target.value)} placeholder="Short description of the property…" /></div>
+          <div className="field">
+            <label>Featured</label>
+            <label style={{ display: "flex", alignItems: "center", gap: 10, textTransform: "none", letterSpacing: 0, fontSize: 14.5, fontWeight: 500, cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={form.featured}
+                onChange={(e) => set("featured", e.target.checked)}
+                style={{ width: 20, height: 20, accentColor: "#c9a96a" }}
+              />
+              ★ Show at the top of the homepage
+            </label>
+          </div>
+          <div className="field full"><label>Description</label><textarea value={form.description} onChange={(e) => set("description", e.target.value)} placeholder="Short description of the property… (tip: add a “Features: …” line and it will render as amenity chips)" /></div>
           <div className="full">
             <button className="btn" onClick={saveProperty} disabled={uploading}>
               {editingId ? "Save Changes" : "Add Property"}
@@ -263,7 +302,9 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <h2 style={{ margin: "18px 0 6px" }}>📋 All Properties ({properties.length})</h2>
+      <h2 style={{ margin: "18px 0 6px", color: "#0a1628", fontFamily: "Georgia, serif" }}>
+        📋 All Properties ({properties.length})
+      </h2>
       {properties.length === 0 ? (
         <div className="empty">No properties yet — add your first one above.</div>
       ) : (
@@ -274,11 +315,15 @@ export default function AdminPage() {
               {properties.map((p) => (
                 <tr key={p.id}>
                   <td>{p.images[0] ? <img className="tbl-img" src={p.images[0]} alt="" loading="lazy" /> : "—"}</td>
-                  <td><b>{p.title}</b><br /><span style={{ color: "#64748b", fontSize: 12 }}>{p.location}</span></td>
+                  <td>
+                    <b>{p.title}</b>
+                    {p.featured ? <span className="badge featured" style={{ marginLeft: 8, fontSize: 10 }}>★ Featured</span> : null}
+                    <br /><span style={{ color: "#5d6c80", fontSize: 12 }}>{p.location}</span>
+                  </td>
                   <td>{p.price_text}</td>
                   <td><span className={`badge ${p.type}`}>{p.type}</span></td>
                   <td className="row-actions">
-                    <button className="btn btn-sm" style={{ background: "#dbeafe", color: "#1d4ed8" }} onClick={() => startEdit(p)}>Edit</button>
+                    <button className="btn btn-sm" style={{ background: "#e8eefb", color: "#1d4ed8", borderColor: "transparent" }} onClick={() => startEdit(p)}>Edit</button>
                     <button className="btn btn-red btn-sm" onClick={() => deleteProperty(p.id)}>Delete</button>
                   </td>
                 </tr>
