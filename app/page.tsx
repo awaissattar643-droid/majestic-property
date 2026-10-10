@@ -112,6 +112,9 @@ export default function HomePage() {
             <h1>
               Find a Home <em>Worth</em> Coming Back To
             </h1>
+            <p className="hero-tagline">
+              Deals in: Rent, Sale, Purchase &amp; Bookings
+            </p>
             <p className="hero-sub">
               Handpicked apartments, houses and flats for sale and rent across
               Karachi&apos;s finest neighbourhoods — with direct, honest dealing.
