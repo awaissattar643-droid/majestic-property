@@ -84,11 +84,7 @@ export default function HomePage() {
       <nav className="nav">
         <div className="container nav-inner">
           <Link href="/" className="brand">
-            <span className="brand-mark">M</span>
-            <span className="brand-text">
-              <strong>Majestic</strong>
-              <span>PROPERTY SOLUTIONS</span>
-            </span>
+            <img src="/mps-logo.jpg" alt="MPS — Majestic Property Solution's" className="brand-logo" />
           </Link>
           <div className="nav-links">
             <Link href="#listings">Properties</Link>
@@ -332,8 +328,7 @@ export default function HomePage() {
         <div className="container">
           <div className="footer-grid">
             <div className="footer-brand">
-              <strong>Majestic</strong>
-              <span>PROPERTY SOLUTIONS</span>
+              <img src="/mps-logo.jpg" alt="MPS — Majestic Property Solution's" className="footer-logo" />
               <p>
                 Premium real estate services in Clifton, Karachi — apartments,
                 houses and flats for sale and rent.
