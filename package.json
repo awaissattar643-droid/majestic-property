@@ -1,0 +1,26 @@
+{
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "next": "14.2.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "description": "Property listings website + admin management system for Majestic Property Solutions, Karachi",
+  "devDependencies": {
+    "@cloudflare/next-on-pages": "1.12.1",
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "typescript": "^5.5.0"
+  },
+  "name": "majestic-property-manager",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev",
+    "pages:build": "npx @cloudflare/next-on-pages",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
+  "version": "1.0.0"
+}
