@@ -21,6 +21,8 @@ const PHONE_DISPLAY = "0321-2028654";
 const ADDRESS = "Shop G6, Ground Floor, Columbus Tower, Clifton, near Teen Talwar, Karachi";
 const FACEBOOK_URL =
   "https://www.facebook.com/people/Majestic-Property-Solutions/100085435413790/";
+const WHATSAPP_CHANNEL_URL =
+  "https://whatsapp.com/channel/0029VaDT3rE2f3EHLTt5xc16";
 
 function waGeneralUrl(): string | null {
   if (!ownerWhatsApp) return null;
@@ -348,6 +350,9 @@ export default function HomePage() {
               <h4>Follow</h4>
               <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer">
                 👍 Facebook Page
+              </a>
+              <a href={WHATSAPP_CHANNEL_URL} target="_blank" rel="noopener noreferrer">
+                📢 WhatsApp Channel
               </a>
               <Link href="#listings">🏠 Browse Properties</Link>
               <Link href="/admin">🔐 Admin Login</Link>
