@@ -353,7 +353,6 @@ export default function HomePage() {
                 📢 WhatsApp Channel
               </a>
               <Link href="#listings">🏠 Browse Properties</Link>
-              <Link href="/admin">🔐 Admin Login</Link>
             </div>
           </div>
           <div className="footer-bottom">
