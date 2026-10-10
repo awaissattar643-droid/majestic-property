@@ -283,7 +283,7 @@ export default function AdminPage() {
                 type="checkbox"
                 checked={form.featured}
                 onChange={(e) => set("featured", e.target.checked)}
-                style={{ width: 20, height: 20, accentColor: "#c9a96a" }}
+                style={{ width: 20, height: 20, accentColor: "#e0322d" }}
               />
               ★ Show at the top of the homepage
             </label>
@@ -302,7 +302,7 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <h2 style={{ margin: "18px 0 6px", color: "#0a1628", fontFamily: "Georgia, serif" }}>
+      <h2 style={{ margin: "18px 0 6px", color: "#0f1f4b", fontFamily: "Georgia, serif" }}>
         📋 All Properties ({properties.length})
       </h2>
       {properties.length === 0 ? (
@@ -323,7 +323,7 @@ export default function AdminPage() {
                   <td>{p.price_text}</td>
                   <td><span className={`badge ${p.type}`}>{p.type}</span></td>
                   <td className="row-actions">
-                    <button className="btn btn-sm" style={{ background: "#e8eefb", color: "#1d4ed8", borderColor: "transparent" }} onClick={() => startEdit(p)}>Edit</button>
+                    <button className="btn btn-sm" style={{ background: "#eef4ff", color: "#1b53c5", borderColor: "transparent" }} onClick={() => startEdit(p)}>Edit</button>
                     <button className="btn btn-red btn-sm" onClick={() => deleteProperty(p.id)}>Delete</button>
                   </td>
                 </tr>
